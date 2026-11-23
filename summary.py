@@ -1,3 +1,5 @@
+#How to run it: python3 summary.py events.jsonl
+
 import argparse
 import json
 from collections import Counter
