@@ -1,4 +1,4 @@
-# call-events
+## call-events
 
 A lightweight Go HTTP microservice for tracking call events in memory, accompanied by a Python JSONL summary script, OpenShift/Kubernetes deployment manifests, and a GitLab CI/CD pipeline.
 
