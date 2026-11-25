@@ -46,18 +46,11 @@ python3 summary.py events.jsonl
 
 AI Usage & Verification Summary
 
-AI Tool Used: Gemini was used to draft initial boilerplate for the Go microservice, Python JSONL parser, Kubernetes/OpenShift YAML manifests, GitLab CI/CD pipeline, and documentation.
+## AI Usage & Verification
 
-Manual Verification Performed:
-
-Executed go test -race ./... locally and verified endpoint behavior (202 on valid payloads, 400 on malformed/incomplete JSON, accurate /stats counts, and /healthz responses) using curl.
-
-Tested summary.py against valid JSONL inputs, malformed JSON lines, empty files, and nonexistent file paths to confirm graceful error handling without crashes.
-
-Reviewed Kubernetes/OpenShift manifests against restricted SCC constraints (runAsNonRoot: true, dropped capabilities, non-root user in Dockerfile, matching labels/ports) and verified GitLab CI stage gating and variable usage.
-
-Issues / Limitations Identified in AI Output:
-
-Initial deployment manifests needed explicit verification to ensure the Dockerfile (USER 10001:10001) and Deployment securityContext aligned with OpenShift's restricted SCC without hardcoding root UIDs.
-
-The Go service stores counters strictly in memory (EventStore), meaning counts reset across pod restarts or scale-out replicas—acceptable for this assessment scope, though production workloads would require an external store (e.g., Redis).
+* **AI Tool Used:** Gemini was used to generate the initial boilerplate for the Go microservice, Python script, OpenShift/Kubernetes manifests, and GitLab CI/CD pipeline.
+* **Manual Verification:** I cross-checked the generated code, CLI flags, YAML fields, and pipeline syntax directly against the official documentation (Go standard library docs, Python `json`/`argparse` docs, OpenShift/Kubernetes specs, and GitLab CI/CD YAML reference) rather than running a live cluster deployment.
+* **Fixes & Limitations Found:**
+  * **OpenShift `restricted` SCC alignment:** In the initial manifest/Dockerfile, I verified and ensured that the container does not run as `root` (`runAsNonRoot: true`, `allowPrivilegeEscalation: false`, `capabilities.drop: ["ALL"]`, and a non-root `USER` in the `Dockerfile`) so OpenShift's default `restricted` SCC would not block the pod.
+  * **GitLab CI/CD variable & rule syntax:** Verified that predefined CI variables (`$CI_COMMIT_SHA`, `$CI_REGISTRY_IMAGE`) and `rules` with `when: manual` matched official GitLab CI syntax so `deploy` only triggers manually on `main`.
+  * **Scope limitation:** The Go service stores counters in memory (`map` + `sync.RWMutex`), so data resets if a pod restarts—suitable for this task, though production would need an external database or Redis.
